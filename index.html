@@ -11,7 +11,8 @@
             --text-color: #ffffff;
             --toolbar-bg: rgba(24, 24, 24, 0.85);
             --accent-color: #3498db;
-            --hover-bg: rgba(255, 255, 255, 0.12);
+            --side-btn-bg: rgba(255, 255, 255, 0.06);
+            --side-btn-hover: rgba(255, 255, 255, 0.15);
         }
 
         * {
@@ -26,7 +27,7 @@
             background-color: var(--bg-color);
             color: var(--text-color);
             overflow: hidden;
-            touch-action: none; /* Mencegah geser browser bawaan di mobile */
+            touch-action: none;
         }
 
         #viewer-container {
@@ -35,9 +36,10 @@
             height: 100vh;
             width: 100vw;
             background-color: var(--bg-color);
+            position: relative;
         }
 
-        /* Toolbar Elegan & Glassmorphism */
+        /* Toolbar Atas - Lebih Bersih */
         .toolbar {
             display: flex;
             justify-content: space-between;
@@ -82,76 +84,64 @@
             margin-top: 1px;
         }
 
+        /* Indikator Halaman di Tengah Toolbar */
         .controls-center {
-            display: flex;
-            align-items: center;
-            gap: 12px;
             position: absolute;
             left: 50%;
             transform: translateX(-50%);
+            z-index: 11;
         }
 
         .page-info {
             font-size: 0.95rem;
             font-weight: 600;
             background: rgba(255, 255, 255, 0.08);
-            padding: 6px 18px;
+            padding: 6px 20px;
             border-radius: 20px;
-            min-width: 85px;
+            min-width: 90px;
             text-align: center;
             border: 1px solid rgba(255, 255, 255, 0.05);
+            letter-spacing: 0.5px;
         }
 
         .actions-right {
             display: flex;
             align-items: center;
-            gap: 10px;
+            z-index: 11;
         }
 
+        /* Tombol Umum */
         button {
             background: none;
             border: none;
             color: var(--text-color);
-            font-size: 1.25rem;
             cursor: pointer;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            width: 40px;
-            height: 40px;
-            border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
         }
 
-        button:hover:not(:disabled) {
-            background: var(--hover-bg);
+        #fullscreen-btn {
+            font-size: 1.25rem;
+            transition: all 0.2s ease;
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+        }
+
+        #fullscreen-btn:hover {
+            background: rgba(255, 255, 255, 0.12);
             transform: scale(1.05);
         }
 
-        button:active:not(:disabled) {
-            transform: scale(0.95);
-        }
-
-        button.nav-btn {
-            background: rgba(255, 255, 255, 0.04);
-            border: 1px solid rgba(255, 255, 255, 0.03);
-        }
-
-        button:disabled {
-            color: rgba(255, 255, 255, 0.15);
-            cursor: not-allowed;
-            background: none;
-            border-color: transparent;
-        }
-
-        /* Area Canvas Dioptimalkan Maksimal */
+        /* Area Utama Dokumen */
         #canvas-wrapper {
             flex-grow: 1;
             display: flex;
             justify-content: center;
             align-items: center;
             overflow: auto;
-            padding: 15px; /* Sedikit padding agar estetik di mode normal */
+            padding: 20px 80px; /* Jarak aman kanan-kiri agar tombol tidak menutupi teks PDF */
             position: relative;
             background: radial-gradient(circle, #252525 0%, #121212 100%);
             transition: padding 0.3s ease;
@@ -163,15 +153,62 @@
             max-width: 100%;
             max-height: 100%;
             display: block;
+            z-index: 1;
         }
 
-        /* Optimasi Tampilan Penuh (Edge-to-Edge) */
+        /* MODERN FLOATING SIDE BUTTONS */
+        .side-nav-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: var(--side-btn-bg);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            font-size: 1.4rem;
+            z-index: 5;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .side-nav-btn.left {
+            left: 20px;
+        }
+
+        .side-nav-btn.right {
+            right: 20px;
+        }
+
+        .side-nav-btn:hover:not(:disabled) {
+            background: var(--side-btn-hover);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-50%) scale(1.1);
+            box-shadow: 0 8px 32px 0 rgba(52, 152, 219, 0.2);
+        }
+
+        .side-nav-btn:active:not(:disabled) {
+            transform: translateY(-50%) scale(0.95);
+        }
+
+        /* Animasi Menghilang Halus saat Disabled */
+        .side-nav-btn:disabled {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        /* Optimasi Tampilan Penuh Mentok Ujung Layar */
         #viewer-container.is-fullscreen #canvas-wrapper {
-            padding: 0; /* Maksimalkan ukuran PDF mentok ke ujung layar */
+            padding: 0 70px; 
         }
         
         #viewer-container.is-fullscreen .toolbar {
-            padding: 8px 24px; /* Toolbar lebih tipis saat fullscreen */
+            padding: 8px 24px;
         }
 
         #loading-bar {
@@ -188,6 +225,7 @@
             padding: 15px 25px;
             border-radius: 30px;
             backdrop-filter: blur(5px);
+            z-index: 2;
         }
         
         .fa-spinner {
@@ -197,18 +235,25 @@
 
         @keyframes spin { 100% { transform: rotate(360deg); } }
 
-        /* Responsif untuk Smartphone */
+        /* Responsif untuk Smartphone Posisi Tegak (Portrait) */
         @media (max-width: 768px) {
             .logo-section .title-group {
                 display: none;
             }
-            .controls-center {
-                position: static;
-                transform: none;
-            }
             .toolbar {
                 padding: 10px 15px;
             }
+            #canvas-wrapper {
+                padding: 15px 10px; /* Di HP, padding diperkecil agar PDF maksimal */
+            }
+            .side-nav-btn {
+                width: 44px;
+                height: 44px;
+                font-size: 1.1rem;
+                background: rgba(24, 24, 24, 0.6); /* Lebih gelap di mobile agar kontras */
+            }
+            .side-nav-btn.left { left: 8px; }
+            .side-nav-btn.right { right: 8px; }
         }
     </style>
 </head>
@@ -225,9 +270,7 @@
             </div>
 
             <div class="controls-center">
-                <button id="prev-btn" class="nav-btn" title="Halaman Sebelumnya"><i class="fas fa-chevron-left"></i></button>
                 <div class="page-info"><span id="page-num">0</span> / <span id="page-count">0</span></div>
-                <button id="next-btn" class="nav-btn" title="Halaman Selanjutnya"><i class="fas fa-chevron-right"></i></button>
             </div>
 
             <div class="actions-right">
@@ -236,6 +279,9 @@
         </div>
 
         <div id="canvas-wrapper">
+            <button id="prev-btn" class="side-nav-btn left" title="Halaman Sebelumnya"><i class="fas fa-chevron-left"></i></button>
+            <button id="next-btn" class="side-nav-btn right" title="Halaman Selanjutnya"><i class="fas fa-chevron-right"></i></button>
+
             <div id="loading-bar"><i class="fas fa-spinner fa-lg"></i> Memuat Dokumen...</div>
             <canvas id="pdf-render" style="display: none;"></canvas>
         </div>
@@ -256,23 +302,31 @@
               ctx = canvas.getContext('2d'),
               wrapper = document.getElementById('canvas-wrapper'),
               viewer = document.getElementById('viewer-container'),
-              fsBtn = document.getElementById('fullscreen-btn');
+              fsBtn = document.getElementById('fullscreen-btn'),
+              prevBtn = document.getElementById('prev-btn'),
+              nextBtn = document.getElementById('next-btn');
 
         // Render Halaman dengan Optimasi Ketajaman Tinggi (High-DPI)
         function renderPage(num) {
             pageRendering = true;
             
             pdfDoc.getPage(num).then(function(page) {
-                // Hitung area bersih pembungkus
-                const paddingSpace = viewer.classList.contains('is-fullscreen') ? 0 : 30;
-                const clientWidth = wrapper.clientWidth - paddingSpace;
-                const clientHeight = wrapper.clientHeight - paddingSpace;
+                // Hitung ruang bersih di pembungkus berdasarkan status layar penuh
+                const isFS = viewer.classList.contains('is-fullscreen');
+                const isMobile = window.innerWidth <= 768;
+                
+                // Menentukan padding pengaman dinamis agar tombol tidak menutupi konten utama
+                let paddingX = isMobile ? 20 : (isFS ? 140 : 160);
+                let paddingY = isFS ? 0 : 40;
+
+                const clientWidth = wrapper.clientWidth - paddingX;
+                const clientHeight = wrapper.clientHeight - paddingY;
 
                 const viewportUnscaled = page.getViewport({ scale: 1 });
                 const scaleX = clientWidth / viewportUnscaled.width;
                 const scaleY = clientHeight / viewportUnscaled.height;
                 
-                // Menentukan skala pas agar seluruh halaman PDF masuk layar tanpa terpotong
+                // Ambil skala terbaik agar PDF proporsional & memenuhi layar dengan maksimal
                 const finalScale = Math.min(scaleX, scaleY);
                 const viewport = page.getViewport({ scale: finalScale });
 
@@ -281,11 +335,11 @@
                 canvas.height = viewport.height * dpr;
                 canvas.width = viewport.width * dpr;
 
-                // Kembalikan ukuran CSS ke ukuran asli agar pas di container
+                // Ukuran CSS diatur pas sesuai kontainer browser
                 canvas.style.width = viewport.width + 'px';
                 canvas.style.height = viewport.height + 'px';
 
-                // Skala konteks gambar agar mengikuti resolusi tinggi perangkat
+                // Sesuaikan matrix transformasi konteks 2D dengan dpr perangkat
                 ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
                 const renderContext = {
@@ -331,13 +385,14 @@
             queueRenderPage(pageNum);
         }
 
+        // Kontrol Sembunyi/Muncul Tombol Samping Berdasarkan Halaman aktif
         function updateButtons() {
-            document.getElementById('prev-btn').disabled = pageNum <= 1;
-            document.getElementById('next-btn').disabled = pageNum >= pdfDoc.numPages;
+            prevBtn.disabled = pageNum <= 1;
+            nextBtn.disabled = pageNum >= pdfDoc.numPages;
         }
 
-        document.getElementById('prev-btn').addEventListener('click', onPrevPage);
-        document.getElementById('next-btn').addEventListener('click', onNextPage);
+        prevBtn.addEventListener('click', onPrevPage);
+        nextBtn.addEventListener('click', onNextPage);
 
         // Membuka File PDF
         pdfjsLib.getDocument(url).promise.then(function(pdfDoc_) {
@@ -375,12 +430,10 @@
             } else {
                 fsBtn.innerHTML = '<i class="fas fa-expand"></i>';
                 viewer.classList.remove('is-fullscreen');
-                // Kembalikan orientasi layar ke bawaan saat keluar dari fullscreen
                 if (screen.orientation && screen.orientation.unlock) {
                     screen.orientation.unlock();
                 }
             }
-            // Render ulang secara instan agar PDF menyesuaikan ukuran resolusi baru penuh
             setTimeout(() => {
                 if(pdfDoc) renderPage(pageNum);
             }, 150);
@@ -415,12 +468,12 @@
         }, {passive: true});
 
         function handleSwipe() {
-            const threshold = 60; // Jarak usap minimum dalam pixel
+            const threshold = 60; 
             if (touchendX < touchstartX - threshold) onNextPage();
             if (touchendX > touchstartX + threshold) onPrevPage();
         }
 
-        // Responsif Otomatis saat Jendela Diubah
+        // Kebijakan Mengubah Ukuran Otomatis saat Orientasi/Window Berubah
         let resizeTimeout;
         window.addEventListener('resize', () => {
             clearTimeout(resizeTimeout);
