@@ -11,8 +11,6 @@
             --text-color: #ffffff;
             --toolbar-bg: rgba(24, 24, 24, 0.85);
             --accent-color: #3498db;
-            --side-btn-bg: rgba(255, 255, 255, 0.06);
-            --side-btn-hover: rgba(255, 255, 255, 0.15);
         }
 
         * {
@@ -39,7 +37,7 @@
             position: relative;
         }
 
-        /* Toolbar Atas - Lebih Bersih */
+        /* Toolbar Atas */
         .toolbar {
             display: flex;
             justify-content: space-between;
@@ -110,7 +108,6 @@
             z-index: 11;
         }
 
-        /* Tombol Umum */
         button {
             background: none;
             border: none;
@@ -141,7 +138,7 @@
             justify-content: center;
             align-items: center;
             overflow: auto;
-            padding: 20px 80px; /* Jarak aman kanan-kiri agar tombol tidak menutupi teks PDF */
+            padding: 20px 80px; 
             position: relative;
             background: radial-gradient(circle, #252525 0%, #121212 100%);
             transition: padding 0.3s ease;
@@ -156,53 +153,52 @@
             z-index: 1;
         }
 
-        /* MODERN FLOATING SIDE BUTTONS */
+        /* ========================================= */
+        /* TOMBOL NAVIGASI SAMPING MINIMALIS         */
+        /* ========================================= */
         .side-nav-btn {
             position: absolute;
             top: 50%;
             transform: translateY(-50%);
-            width: 56px;
-            height: 56px;
-            border-radius: 50%;
-            background: var(--side-btn-bg);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            font-size: 1.4rem;
+            width: 60px; /* Area sentuh tetap lebar agar mudah dipencet */
+            height: 80px;
+            background: transparent; /* Lingkaran dihilangkan */
+            border: none;
+            color: rgba(255, 255, 255, 0.6); /* Warna ikon sedikit redup saat diam */
+            font-size: 3rem; /* Ukuran ikon diperbesar */
             z-index: 5;
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            text-shadow: 0 4px 15px rgba(0, 0, 0, 0.8); /* Bayangan kuat agar kontras dengan background putih PDF */
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             opacity: 1;
             visibility: visible;
         }
 
         .side-nav-btn.left {
-            left: 20px;
+            left: 15px;
         }
 
         .side-nav-btn.right {
-            right: 20px;
+            right: 15px;
         }
 
         .side-nav-btn:hover:not(:disabled) {
-            background: var(--side-btn-hover);
-            border-color: rgba(255, 255, 255, 0.2);
-            transform: translateY(-50%) scale(1.1);
-            box-shadow: 0 8px 32px 0 rgba(52, 152, 219, 0.2);
+            color: #ffffff; /* Ikon menjadi putih terang saat disentuh/di-hover */
+            transform: translateY(-50%) scale(1.2); /* Membesar sedikit */
+            background: transparent;
+            text-shadow: 0 6px 20px rgba(0, 0, 0, 0.9);
         }
 
         .side-nav-btn:active:not(:disabled) {
             transform: translateY(-50%) scale(0.95);
         }
 
-        /* Animasi Menghilang Halus saat Disabled */
         .side-nav-btn:disabled {
             opacity: 0;
             visibility: hidden;
             pointer-events: none;
         }
 
-        /* Optimasi Tampilan Penuh Mentok Ujung Layar */
+        /* Optimasi Tampilan Penuh */
         #viewer-container.is-fullscreen #canvas-wrapper {
             padding: 0 70px; 
         }
@@ -235,7 +231,7 @@
 
         @keyframes spin { 100% { transform: rotate(360deg); } }
 
-        /* Responsif untuk Smartphone Posisi Tegak (Portrait) */
+        /* Responsif untuk Smartphone */
         @media (max-width: 768px) {
             .logo-section .title-group {
                 display: none;
@@ -244,16 +240,15 @@
                 padding: 10px 15px;
             }
             #canvas-wrapper {
-                padding: 15px 10px; /* Di HP, padding diperkecil agar PDF maksimal */
+                padding: 15px 10px;
             }
             .side-nav-btn {
-                width: 44px;
-                height: 44px;
-                font-size: 1.1rem;
-                background: rgba(24, 24, 24, 0.6); /* Lebih gelap di mobile agar kontras */
+                width: 40px;
+                font-size: 2rem;
+                color: rgba(255, 255, 255, 0.8);
             }
-            .side-nav-btn.left { left: 8px; }
-            .side-nav-btn.right { right: 8px; }
+            .side-nav-btn.left { left: 5px; }
+            .side-nav-btn.right { right: 5px; }
         }
     </style>
 </head>
@@ -306,16 +301,13 @@
               prevBtn = document.getElementById('prev-btn'),
               nextBtn = document.getElementById('next-btn');
 
-        // Render Halaman dengan Optimasi Ketajaman Tinggi (High-DPI)
         function renderPage(num) {
             pageRendering = true;
             
             pdfDoc.getPage(num).then(function(page) {
-                // Hitung ruang bersih di pembungkus berdasarkan status layar penuh
                 const isFS = viewer.classList.contains('is-fullscreen');
                 const isMobile = window.innerWidth <= 768;
                 
-                // Menentukan padding pengaman dinamis agar tombol tidak menutupi konten utama
                 let paddingX = isMobile ? 20 : (isFS ? 140 : 160);
                 let paddingY = isFS ? 0 : 40;
 
@@ -326,20 +318,16 @@
                 const scaleX = clientWidth / viewportUnscaled.width;
                 const scaleY = clientHeight / viewportUnscaled.height;
                 
-                // Ambil skala terbaik agar PDF proporsional & memenuhi layar dengan maksimal
                 const finalScale = Math.min(scaleX, scaleY);
                 const viewport = page.getViewport({ scale: finalScale });
 
-                // OPTIMASI KETAJAMAN: Mengalikan ukuran internal canvas dengan pixel ratio perangkat
                 const dpr = window.devicePixelRatio || 1;
                 canvas.height = viewport.height * dpr;
                 canvas.width = viewport.width * dpr;
 
-                // Ukuran CSS diatur pas sesuai kontainer browser
                 canvas.style.width = viewport.width + 'px';
                 canvas.style.height = viewport.height + 'px';
 
-                // Sesuaikan matrix transformasi konteks 2D dengan dpr perangkat
                 ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
                 const renderContext = {
@@ -385,7 +373,6 @@
             queueRenderPage(pageNum);
         }
 
-        // Kontrol Sembunyi/Muncul Tombol Samping Berdasarkan Halaman aktif
         function updateButtons() {
             prevBtn.disabled = pageNum <= 1;
             nextBtn.disabled = pageNum >= pdfDoc.numPages;
@@ -394,7 +381,6 @@
         prevBtn.addEventListener('click', onPrevPage);
         nextBtn.addEventListener('click', onNextPage);
 
-        // Membuka File PDF
         pdfjsLib.getDocument(url).promise.then(function(pdfDoc_) {
             pdfDoc = pdfDoc_;
             document.getElementById('page-count').textContent = pdfDoc.numPages;
@@ -403,13 +389,10 @@
             document.getElementById('loading-bar').innerHTML = `<i class="fas fa-exclamation-triangle" style="color:#ff4757;"></i> Gagal memuat file PDF.`;
         });
 
-        // ===================================================
-        // OPTIMASI FULLSCREEN & AUTOMATIC LANDSCAPE LOCK
-        // ===================================================
+        // Fullscreen
         fsBtn.addEventListener('click', () => {
             if (!document.fullscreenElement) {
                 viewer.requestFullscreen().then(() => {
-                    // Paksa orientasi layar menjadi landscape jika didukung perangkat (Mobile/Tablet)
                     if (screen.orientation && screen.orientation.lock) {
                         screen.orientation.lock('landscape').catch(err => {
                             console.log('Kunci orientasi diabaikan/tidak didukung perangkat desktop.');
@@ -439,9 +422,7 @@
             }, 150);
         });
 
-        // ===================================================
-        // INTEGRASI TOMBOL KEYBOARD (LAPTOP/PC)
-        // ===================================================
+        // Keyboard
         window.addEventListener('keydown', (e) => {
             if (e.key === 'ArrowRight' || e.key === ' ') {
                 e.preventDefault();
@@ -452,9 +433,7 @@
             }
         });
 
-        // ===================================================
-        // INTEGRASI DIGESER / SWIPE (IFP & LAYAR SENTUH)
-        // ===================================================
+        // Swipe
         let touchstartX = 0;
         let touchendX = 0;
 
@@ -473,7 +452,7 @@
             if (touchendX > touchstartX + threshold) onPrevPage();
         }
 
-        // Kebijakan Mengubah Ukuran Otomatis saat Orientasi/Window Berubah
+        // Resize
         let resizeTimeout;
         window.addEventListener('resize', () => {
             clearTimeout(resizeTimeout);
