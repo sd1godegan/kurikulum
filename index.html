@@ -2,29 +2,31 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Kurikulum SD Negeri 1 Godegan</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
-            --primary-color: #2c3e50;
-            --bg-color: #1a1a1a;
+            --bg-color: #121212;
             --text-color: #ffffff;
-            --toolbar-bg: rgba(30, 30, 30, 0.9);
+            --toolbar-bg: rgba(24, 24, 24, 0.85);
             --accent-color: #3498db;
+            --hover-bg: rgba(255, 255, 255, 0.12);
         }
 
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            -webkit-font-smoothing: antialiased;
         }
 
         body {
             background-color: var(--bg-color);
             color: var(--text-color);
             overflow: hidden;
+            touch-action: none; /* Mencegah geser browser bawaan di mobile */
         }
 
         #viewer-container {
@@ -35,16 +37,18 @@
             background-color: var(--bg-color);
         }
 
-        /* Toolbar Modern dengan Logo */
+        /* Toolbar Elegan & Glassmorphism */
         .toolbar {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 10px 20px;
+            padding: 12px 24px;
             background: var(--toolbar-bg);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid rgba(255,255,255,0.1);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
             z-index: 10;
+            transition: padding 0.3s ease;
         }
 
         .logo-section {
@@ -54,9 +58,10 @@
         }
 
         .school-logo {
-            height: 50px; /* Sesuaikan ukuran logo */
+            height: 48px;
             width: auto;
             object-fit: contain;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
         }
 
         .title-group {
@@ -65,34 +70,36 @@
         }
 
         .toolbar .main-title {
-            font-size: 1.1rem;
+            font-size: 1.05rem;
             font-weight: 700;
             letter-spacing: 0.5px;
             color: var(--text-color);
         }
 
         .toolbar .sub-title {
-            font-size: 0.85rem;
-            color: rgba(255,255,255,0.7);
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.6);
+            margin-top: 1px;
         }
 
         .controls-center {
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 12px;
             position: absolute;
             left: 50%;
             transform: translateX(-50%);
         }
 
         .page-info {
-            font-size: 1rem;
-            font-weight: 500;
-            background: rgba(255,255,255,0.1);
-            padding: 6px 16px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            background: rgba(255, 255, 255, 0.08);
+            padding: 6px 18px;
             border-radius: 20px;
-            min-width: 80px;
+            min-width: 85px;
             text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.05);
         }
 
         .actions-right {
@@ -105,47 +112,66 @@
             background: none;
             border: none;
             color: var(--text-color);
-            font-size: 1.3rem;
+            font-size: 1.25rem;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
             width: 40px;
             height: 40px;
-            border-radius: 8px;
+            border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
         }
 
-        button:hover {
-            background: rgba(255,255,255,0.15);
+        button:hover:not(:disabled) {
+            background: var(--hover-bg);
+            transform: scale(1.05);
+        }
+
+        button:active:not(:disabled) {
+            transform: scale(0.95);
         }
 
         button.nav-btn {
-            background: rgba(255,255,255,0.05);
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.03);
         }
 
         button:disabled {
-            color: rgba(255,255,255,0.2);
+            color: rgba(255, 255, 255, 0.15);
             cursor: not-allowed;
             background: none;
+            border-color: transparent;
         }
 
+        /* Area Canvas Dioptimalkan Maksimal */
         #canvas-wrapper {
             flex-grow: 1;
             display: flex;
             justify-content: center;
             align-items: center;
             overflow: auto;
-            padding: 20px;
+            padding: 15px; /* Sedikit padding agar estetik di mode normal */
             position: relative;
+            background: radial-gradient(circle, #252525 0%, #121212 100%);
+            transition: padding 0.3s ease;
         }
 
         canvas {
-            box-shadow: 0 15px 35px rgba(0,0,0,0.6);
-            border-radius: 4px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.65);
+            border-radius: 6px;
             max-width: 100%;
             max-height: 100%;
-            transition: opacity 0.3s ease;
+            display: block;
+        }
+
+        /* Optimasi Tampilan Penuh (Edge-to-Edge) */
+        #viewer-container.is-fullscreen #canvas-wrapper {
+            padding: 0; /* Maksimalkan ukuran PDF mentok ke ujung layar */
+        }
+        
+        #viewer-container.is-fullscreen .toolbar {
+            padding: 8px 24px; /* Toolbar lebih tipis saat fullscreen */
         }
 
         #loading-bar {
@@ -157,7 +183,11 @@
             display: flex;
             align-items: center;
             gap: 12px;
-            color: rgba(255,255,255,0.8);
+            color: rgba(255, 255, 255, 0.8);
+            background: rgba(0, 0, 0, 0.7);
+            padding: 15px 25px;
+            border-radius: 30px;
+            backdrop-filter: blur(5px);
         }
         
         .fa-spinner {
@@ -167,17 +197,17 @@
 
         @keyframes spin { 100% { transform: rotate(360deg); } }
 
-        /* Responsif untuk Mobile */
+        /* Responsif untuk Smartphone */
         @media (max-width: 768px) {
             .logo-section .title-group {
-                display: none; /* Sembunyikan teks judul di layar kecil */
+                display: none;
             }
             .controls-center {
                 position: static;
                 transform: none;
             }
             .toolbar {
-                padding: 10px;
+                padding: 10px 15px;
             }
         }
     </style>
@@ -215,9 +245,7 @@
     <script>
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
 
-        // Konfigurasi File
         const url = 'kurikulum.pdf'; 
-        // const logoUrl = 'logo.png'; // Tentukan nama file logo di sini
 
         let pdfDoc = null,
             pageNum = 1,
@@ -226,21 +254,39 @@
             
         const canvas = document.getElementById('pdf-render'),
               ctx = canvas.getContext('2d'),
-              wrapper = document.getElementById('canvas-wrapper');
+              wrapper = document.getElementById('canvas-wrapper'),
+              viewer = document.getElementById('viewer-container'),
+              fsBtn = document.getElementById('fullscreen-btn');
 
+        // Render Halaman dengan Optimasi Ketajaman Tinggi (High-DPI)
         function renderPage(num) {
             pageRendering = true;
             
             pdfDoc.getPage(num).then(function(page) {
+                // Hitung area bersih pembungkus
+                const paddingSpace = viewer.classList.contains('is-fullscreen') ? 0 : 30;
+                const clientWidth = wrapper.clientWidth - paddingSpace;
+                const clientHeight = wrapper.clientHeight - paddingSpace;
+
                 const viewportUnscaled = page.getViewport({ scale: 1 });
-                const scaleX = (wrapper.clientWidth - 40) / viewportUnscaled.width;
-                const scaleY = (wrapper.clientHeight - 40) / viewportUnscaled.height;
+                const scaleX = clientWidth / viewportUnscaled.width;
+                const scaleY = clientHeight / viewportUnscaled.height;
                 
+                // Menentukan skala pas agar seluruh halaman PDF masuk layar tanpa terpotong
                 const finalScale = Math.min(scaleX, scaleY);
                 const viewport = page.getViewport({ scale: finalScale });
 
-                canvas.height = viewport.height;
-                canvas.width = viewport.width;
+                // OPTIMASI KETAJAMAN: Mengalikan ukuran internal canvas dengan pixel ratio perangkat
+                const dpr = window.devicePixelRatio || 1;
+                canvas.height = viewport.height * dpr;
+                canvas.width = viewport.width * dpr;
+
+                // Kembalikan ukuran CSS ke ukuran asli agar pas di container
+                canvas.style.width = viewport.width + 'px';
+                canvas.style.height = viewport.height + 'px';
+
+                // Skala konteks gambar agar mengikuti resolusi tinggi perangkat
+                ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
                 const renderContext = {
                     canvasContext: ctx,
@@ -293,22 +339,29 @@
         document.getElementById('prev-btn').addEventListener('click', onPrevPage);
         document.getElementById('next-btn').addEventListener('click', onNextPage);
 
+        // Membuka File PDF
         pdfjsLib.getDocument(url).promise.then(function(pdfDoc_) {
             pdfDoc = pdfDoc_;
             document.getElementById('page-count').textContent = pdfDoc.numPages;
             renderPage(pageNum);
         }).catch(err => {
-            document.getElementById('loading-bar').innerHTML = `<i class="fas fa-exclamation-triangle" style="color:#ff4757;"></i> Gagal memuat PDF.`;
+            document.getElementById('loading-bar').innerHTML = `<i class="fas fa-exclamation-triangle" style="color:#ff4757;"></i> Gagal memuat file PDF.`;
         });
 
-        // Fullscreen
-        const viewer = document.getElementById('viewer-container');
-        const fsBtn = document.getElementById('fullscreen-btn');
-
+        // ===================================================
+        // OPTIMASI FULLSCREEN & AUTOMATIC LANDSCAPE LOCK
+        // ===================================================
         fsBtn.addEventListener('click', () => {
             if (!document.fullscreenElement) {
-                viewer.requestFullscreen().catch(err => {
-                    console.log(`Error: ${err.message}`);
+                viewer.requestFullscreen().then(() => {
+                    // Paksa orientasi layar menjadi landscape jika didukung perangkat (Mobile/Tablet)
+                    if (screen.orientation && screen.orientation.lock) {
+                        screen.orientation.lock('landscape').catch(err => {
+                            console.log('Kunci orientasi diabaikan/tidak didukung perangkat desktop.');
+                        });
+                    }
+                }).catch(err => {
+                    console.log(`Gagal masuk Fullscreen: ${err.message}`);
                 });
             } else {
                 document.exitFullscreen();
@@ -318,15 +371,37 @@
         document.addEventListener('fullscreenchange', () => {
             if (document.fullscreenElement) {
                 fsBtn.innerHTML = '<i class="fas fa-compress"></i>';
+                viewer.classList.add('is-fullscreen');
             } else {
                 fsBtn.innerHTML = '<i class="fas fa-expand"></i>';
+                viewer.classList.remove('is-fullscreen');
+                // Kembalikan orientasi layar ke bawaan saat keluar dari fullscreen
+                if (screen.orientation && screen.orientation.unlock) {
+                    screen.orientation.unlock();
+                }
             }
+            // Render ulang secara instan agar PDF menyesuaikan ukuran resolusi baru penuh
             setTimeout(() => {
                 if(pdfDoc) renderPage(pageNum);
-            }, 200);
+            }, 150);
         });
 
-        // Swipe
+        // ===================================================
+        // INTEGRASI TOMBOL KEYBOARD (LAPTOP/PC)
+        // ===================================================
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ') {
+                e.preventDefault();
+                onNextPage();
+            } else if (e.key === 'ArrowLeft') {
+                e.preventDefault();
+                onPrevPage();
+            }
+        });
+
+        // ===================================================
+        // INTEGRASI DIGESER / SWIPE (IFP & LAYAR SENTUH)
+        // ===================================================
         let touchstartX = 0;
         let touchendX = 0;
 
@@ -340,15 +415,20 @@
         }, {passive: true});
 
         function handleSwipe() {
-            const threshold = 50;
+            const threshold = 60; // Jarak usap minimum dalam pixel
             if (touchendX < touchstartX - threshold) onNextPage();
             if (touchendX > touchstartX + threshold) onPrevPage();
         }
 
+        // Responsif Otomatis saat Jendela Diubah
+        let resizeTimeout;
         window.addEventListener('resize', () => {
-            if(pdfDoc && !pageRendering) {
-                queueRenderPage(pageNum);
-            }
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(() => {
+                if(pdfDoc && !pageRendering) {
+                    queueRenderPage(pageNum);
+                }
+            }, 150);
         });
     </script>
 </body>
